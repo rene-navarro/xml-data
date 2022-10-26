@@ -22,6 +22,7 @@ public class SalesStateReport extends DefaultHandler {
     private boolean inSales;
 
     private String currentElement;
+
     private String id;
     private String name;
     private String lastName;
@@ -44,7 +45,6 @@ public class SalesStateReport extends DefaultHandler {
         try {
             // obtener un parser para verificar el documento
             parser = spf.newSAXParser();
-
         } catch (SAXException | ParserConfigurationException e) {
             LOG.severe(e.getMessage());
             System.exit(1);
@@ -66,11 +66,6 @@ public class SalesStateReport extends DefaultHandler {
         totalSales = 0.0;
     }
 
-    @Override
-    public void endDocument() throws SAXException {
-        // Se proceso todo el documento, imprimir resultado
-        //System.out.printf("Ventas totales: $%,8.2f\n", totalSales);
-    }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
@@ -79,28 +74,13 @@ public class SalesStateReport extends DefaultHandler {
         if (localName.equals("sale_record")) {
             inSales = true;
         }
-
         currentElement = localName;
-    }
-
-    @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
-        if (localName.equals("sale_record")) {
-            if (state.equals(keyword))
-                printRecord();
-            inSales = false;
-        }
-    }
-
-    private void printRecord() {
-        System.out.printf("%4.4s %-10.10s %-10.10s %9.9s %-10.10s %-15.15s\n",
-                id,name,lastName,sales,state,dept);
     }
 
     @Override
     public void characters(char[] bytes, int start, int length) throws SAXException {
 
-        switch (currentElement) {
+        switch ( currentElement ) {
             case "id":
                 this.id = new String(bytes, start, length);
                 break;
@@ -122,12 +102,26 @@ public class SalesStateReport extends DefaultHandler {
         }
     }
 
+    @Override
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        if ( localName.equals("sale_record") ) {
+            if ( state.equals( keyword ) )
+                printRecord();
+            inSales = false;
+        }
+    }
+
+    private void printRecord() {
+        System.out.printf("%4.4s %-10.10s %-10.10s %9.9s %-10.10s %-15.15s\n",
+                id,name,lastName,sales,state,dept);
+    }
+
     public static void main(String args[]) {
         if (args.length == 0) {
             LOG.severe("No file to process. Usage is:" + "\njava SalesStateReport <keyword>");
             return;
         }
-        File xmlFile = new File("/Users/rnavarro/data/xml/sales.xml");
+        File xmlFile = new File("D:\\data\\xml\\sales.xml");
         SalesStateReport handler = new SalesStateReport();
         handler.process(xmlFile, args[0]);
     }

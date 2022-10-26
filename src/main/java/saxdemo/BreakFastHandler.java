@@ -1,15 +1,16 @@
-package saxdemo.menu;
+package saxdemo;
 
 import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-import saxdemo.DisplayXML;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class BreakFastHandler extends DefaultHandler {
@@ -23,59 +24,68 @@ public class BreakFastHandler extends DefaultHandler {
     private boolean calories;
 
     private Food fooItem;
+    private ArrayList<Food> lista;
+
+    public BreakFastHandler() {
+        super();
+
+        lista = new ArrayList<>();
+    }
 
     @Override
     public void startElement(String uri, String localName, String qName,
                              Attributes attributes) throws SAXException {
-        LOG.info("startElement");
+        //LOG.info("startElement");
 
-        if( localName.equals("food")) {
+        if (localName.equals("food")) {
             fooItem = new Food();
         }
-        if( localName.equals("name") )
+        if (localName.equals("name"))
             name = true;
-        if( localName.equals("price") )
+        if (localName.equals("price"))
             price = true;
-        if( localName.equals("description") )
+        if (localName.equals("description"))
             description = true;
-        if( localName.equals("calories") )
+        if (localName.equals("calories"))
             calories = true;
     }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-        LOG.info("characters");
+        // LOG.info("characters");
         String contenido = new String(ch, start, length);
 
-        if( name ){
+        if (name) {
             fooItem.setName(contenido);
-        }
-        if( price ){
+        } else if (price) {
             fooItem.setPrice( Double.parseDouble(contenido) );
+        } else if (description) {
+            fooItem.setDescription( contenido );
+        } else if (calories) {
+            fooItem.setCalories(Integer.parseInt( contenido) );
         }
-        if( description ){
-            fooItem.setDescription(contenido);
-        }
-        if( calories ){
-            fooItem.setCalories(Integer.parseInt(contenido));
-        }
-
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        LOG.info( localName );
-        if( localName.equals("name") )
+        //LOG.info( qName );
+        if (localName.equals("name"))
             name = false;
-        if( localName.equals("price") )
+        if (localName.equals("price"))
             price = false;
-        if( localName.equals("description") )
+        if (localName.equals("description"))
             description = false;
-        if( localName.equals("calories") )
+        if (localName.equals("calories"))
             calories = false;
-        if( localName.equals("food") ) {
-            System.out.println( fooItem.toString() );
+
+        if ( localName.equals("food") ) {
+            //System.out.println( fooItem.toString() ) ;
+            lista.add( fooItem );
         }
+    }
+
+    public ArrayList<Food> getLista() {
+        return lista;
     }
 
     public static void main(String args[]) {
@@ -85,17 +95,19 @@ public class BreakFastHandler extends DefaultHandler {
         }
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setNamespaceAware(true);
         factory.setValidating(true);
+
         SAXParser saxParser = null;
         try {
             saxParser = factory.newSAXParser();
         } catch (ParserConfigurationException e) {
-            LOG.severe( e.getMessage());
+            LOG.severe(e.getMessage());
         } catch (SAXException e) {
-            LOG.severe( e.getMessage());
+            LOG.severe(e.getMessage());
         }
 
-        File xmlFile = new File(args[0]);
+        File xmlFile = new File( args[0] );
 
         BreakFastHandler handler = new BreakFastHandler();
 
@@ -104,8 +116,13 @@ public class BreakFastHandler extends DefaultHandler {
         } catch (SAXException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            LOG.severe( e.getMessage());
+            LOG.severe(e.getMessage());
+        }
+
+        ArrayList<Food> lista = handler.getLista();
+
+        for (Food food: lista) {
+            System.out.println( food.toString() );
         }
     }
-
 }

@@ -43,6 +43,7 @@ public class DeptSalesReport extends DefaultHandler {
         spf.setNamespaceAware(true);
         // validar que el documento este bien formado (well formed)
         spf.setValidating(true);
+
         subtotales = new HashMap<>();
     }
 
@@ -79,6 +80,7 @@ public class DeptSalesReport extends DefaultHandler {
       for (Map.Entry<String,Double> entry: entries) {
           System.out.printf("%-15.15s $%,9.2f\n",entry.getKey(),entry.getValue());
       }
+        System.out.printf("Ventas totales: $%,9.2f\n",totalSales);
     }
 
     @Override
@@ -89,30 +91,6 @@ public class DeptSalesReport extends DefaultHandler {
             inSales = true;
         }
         currentElement = localName;
-    }
-
-    @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
-        if (localName.equals("sale_record")) {
-            double val = 0.0;
-            try {
-                val = Double.parseDouble(this.sales);
-            } catch (NumberFormatException e) {
-                LOG.severe(e.getMessage());
-            }
-            if (subtotales.containsKey(this.state)) {
-                double sum = subtotales.get(this.state);
-                subtotales.put(this.state, sum + val);
-            } else {
-                subtotales.put(this.state, val );
-            }
-            inSales = false;
-        }
-    }
-
-    private void printRecord() {
-        System.out.printf("%4.4s %-10.10s %-10.10s %9.9s %-10.10s %-15.15s\n",
-                id, name, lastName, sales, state, dept);
     }
 
     @Override
@@ -139,6 +117,34 @@ public class DeptSalesReport extends DefaultHandler {
                 break;
         }
     }
+
+    @Override
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        if ( localName.equals("sale_record") ) {
+            double val = 0.0;
+            try {
+                val = Double.parseDouble(this.sales);
+            } catch (NumberFormatException e) {
+                LOG.severe(e.getMessage());
+            }
+
+            if ( subtotales.containsKey( this.dept ) ) {
+                double sum = subtotales.get( this.dept );
+                subtotales.put( this.dept, sum + val );
+            } else {
+                subtotales.put(this.dept, val );
+            }
+            totalSales = totalSales + val;
+            inSales = false;
+        }
+    }
+
+    private void printRecord() {
+        System.out.printf("%4.4s %-10.10s %-10.10s %9.9s %-10.10s %-15.15s\n",
+                id, name, lastName, sales, state, dept);
+    }
+
+
 
     public static void main(String args[]) {
         if (args.length == 0) {

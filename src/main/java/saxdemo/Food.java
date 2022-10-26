@@ -1,7 +1,6 @@
-package saxdemo.menu;
+package saxdemo;
 
 public class Food {
-
     private String name;
     private double price;
     private String description;
@@ -41,6 +40,6 @@ public class Food {
 
     @Override
     public String toString() {
-        return String.format("%-30.30s, %4.2f, %4\n%-40.40s",name,price, calories,description);
+        return String.format("%-25.25s, $%4.2f (%d calorias) \n\t%-80.80s",name, price, calories, description);
     }
 }
