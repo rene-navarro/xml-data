@@ -32,6 +32,44 @@ public class BreakFastHandler extends DefaultHandler {
         lista = new ArrayList<>();
     }
 
+    public static void main(String args[]) {
+        if (args.length == 0) {
+            LOG.severe("No file to process. Usage is:" + "\njava BreakFastHandler <filename>");
+            return;
+        }
+
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setValidating(true);
+
+        SAXParser saxParser = null;
+        try {
+            saxParser = factory.newSAXParser();
+        } catch (ParserConfigurationException e) {
+            LOG.severe(e.getMessage());
+        } catch (SAXException e) {
+            LOG.severe(e.getMessage());
+        }
+
+        File xmlFile = new File(args[0]);
+
+        BreakFastHandler handler = new BreakFastHandler();
+
+        try {
+            saxParser.parse(xmlFile, handler);
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            LOG.severe(e.getMessage());
+        }
+
+        ArrayList<Food> lista = handler.getLista();
+
+        for (Food food : lista) {
+            System.out.println(food.toString());
+        }
+    }
+
     @Override
     public void startElement(String uri, String localName, String qName,
                              Attributes attributes) throws SAXException {
@@ -58,11 +96,11 @@ public class BreakFastHandler extends DefaultHandler {
         if (name) {
             fooItem.setName(contenido);
         } else if (price) {
-            fooItem.setPrice( Double.parseDouble(contenido) );
+            fooItem.setPrice(Double.parseDouble(contenido));
         } else if (description) {
-            fooItem.setDescription( contenido );
+            fooItem.setDescription(contenido);
         } else if (calories) {
-            fooItem.setCalories(Integer.parseInt( contenido) );
+            fooItem.setCalories(Integer.parseInt(contenido));
         }
     }
 
@@ -78,51 +116,13 @@ public class BreakFastHandler extends DefaultHandler {
         if (localName.equals("calories"))
             calories = false;
 
-        if ( localName.equals("food") ) {
+        if (localName.equals("food")) {
             //System.out.println( fooItem.toString() ) ;
-            lista.add( fooItem );
+            lista.add(fooItem);
         }
     }
 
     public ArrayList<Food> getLista() {
         return lista;
-    }
-
-    public static void main(String args[]) {
-        if (args.length == 0) {
-            LOG.severe("No file to process. Usage is:" + "\njava BreakFastHandler <filename>");
-            return;
-        }
-
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setNamespaceAware(true);
-        factory.setValidating(true);
-
-        SAXParser saxParser = null;
-        try {
-            saxParser = factory.newSAXParser();
-        } catch (ParserConfigurationException e) {
-            LOG.severe(e.getMessage());
-        } catch (SAXException e) {
-            LOG.severe(e.getMessage());
-        }
-
-        File xmlFile = new File( args[0] );
-
-        BreakFastHandler handler = new BreakFastHandler();
-
-        try {
-            saxParser.parse(xmlFile, handler);
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            LOG.severe(e.getMessage());
-        }
-
-        ArrayList<Food> lista = handler.getLista();
-
-        for (Food food: lista) {
-            System.out.println( food.toString() );
-        }
     }
 }

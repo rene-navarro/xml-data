@@ -144,8 +144,6 @@ public class DeptSalesReport extends DefaultHandler {
                 id, name, lastName, sales, state, dept);
     }
 
-
-
     public static void main(String args[]) {
         if (args.length == 0) {
             LOG.severe("No file to process. Usage is:" + "\njava DeptSalesReport <keyword>");

@@ -121,7 +121,8 @@ public class SalesStateReport extends DefaultHandler {
             LOG.severe("No file to process. Usage is:" + "\njava SalesStateReport <keyword>");
             return;
         }
-        File xmlFile = new File("D:\\data\\xml\\sales.xml");
+       // File xmlFile = new File("D:\\data\\xml\\sales.xml");
+        File xmlFile = new File("sales.xml");
         SalesStateReport handler = new SalesStateReport();
         handler.process(xmlFile, args[0]);
     }
